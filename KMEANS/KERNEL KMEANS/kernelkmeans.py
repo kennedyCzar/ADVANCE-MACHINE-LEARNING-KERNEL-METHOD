@@ -8,19 +8,18 @@ Created on Mon Oct 14 01:41:45 2019
 
 from __future__ import absolute_import
 import numpy as np
-import copy
 from Utils.kernels import Kernels
 
 class kkmeans(Kernels):
     def __init__(self, k = None,kernel = None):
         super().__init__()
         if not k:
-            k = 2
+            k = 3
             self.k = k
         else:
             self.k = k
         if not kernel:
-            kernel = 'rbf'
+            kernel = 'linear'
             self.kernel = kernel
         else:
             self.kernel = kernel
@@ -44,56 +43,56 @@ class kkmeans(Kernels):
         elif self.kernel == 'correlation':
             return Kernels.correlation(x1, x2)
         
-    def distance(self, x, nu):
+    def distance(self, x, nu, axs = 1):
         '''
         :param: x: datapoint
         :param: nu: mean
         :retrun distance matrix
         '''
        
-        return self.kernelize(x, x) + self.kernelize(nu, nu) - 2*self.kernel(x, nu)
+        return np.linalg.norm(x - nu, axis = axs)
     
     
-    def fit(self, X):
+    def fit(self, X, iteration = None):
         '''
         :param: X: NxD
         '''
-        self.X = X
-        #random sample
+        if not iteration:
+            iteration = 20
+            self.iteration = iteration
+        else:
+            self.iteration = iteration
         N, D = X.shape
-        #randomly initialize k centroids
-        self.nu = X[np.random.choice(N, self.k, replace = False)]
-        self.prev_c = np.zeros((self.k, D))
-        self.cluster = np.zeros(X.shape[0])
-        '''iterate by checking to see if new centroid
-        of new center is same as old center, then we reached an
-        optimum point.
-        '''
-        while self.distance(self.X, self.nu) != 0:
-            for ii in range(X.shape[0]):
-                self.distance_matrix = self.distance(self.X[ii], self.nu)
-                self.cluster[ii] = np.argmin(self.distance_matrix)
-            self.prev_c = copy.deepcopy(self.nu)
-            for ij in range(self.k):
-                #mean of the new found clusters
-                self.newPoints = [X[ii] for ii in range(X.shape[0]) if self.cluster[ii] == ij]
-                self.nu[ij] = np.mean(self.newPoints, axis = 0)
+        self.cluster = np.random.randint(low = 0, high = 2, size = N)
+        self.cost_rec = np.zeros(self.iteration)
+        for self.iter in range(self.iteration):
+            self.kappar = np.tile(self.kernelize(X, X).diagonal().reshape((-1, 1)), self.k)
+            self.z_i = np.bincount(self.cluster)
+            for self.c in range(self.k):
+                self.kappar[:, self.c] = self.kappar[:, self.c] + np.sum((self.kernelize(X, X))[self.cluster == self.c][:, self.cluster == self.c])/\
+                                            (self.z_i[self.c]**2) - 2*np.sum(self.kernelize(X, X)[:, self.cluster == self.c], axis = 1)/self.z_i[self.c]
         return self
     
-    def predict(self, X):
+    def predict(self):
         '''
         :param: X: NxD
         :return type: labels
         '''
-        pred = np.zeros(X.shape[0])
-        #compare new data to final centroid
-        for ii in range(X.shape[0]):
-            distance_matrix = self.distance(X[ii], self.nu)
-            pred[ii] = np.argmin(distance_matrix)
-        return pred
+        
+        return np.argmin(self.kappar, axis = 1)
     
 
 #%% Testing
-        
-    
-kernelkmns = kkmeans().fit(X)
+from sklearn.datasets import make_circles, make_blobs
+X, y = make_blobs(1000, )
+import matplotlib.pyplot as plt  
+
+trans = [[.6, -.6], [-.4, .8]]
+X = X.dot(trans)
+kernelkmns = kkmeans(kernel='polynomial').fit(X)
+
+plt.scatter(X[:, 0], X[:, 1], c = kernelkmns.predict())
+
+
+
+
