@@ -50,6 +50,12 @@ class kPCA(Kernels):
             return Kernels.cosine(x1, x2)
         elif self.kernel == 'correlation':
             return Kernels.correlation(x1, x2)
+        elif self.kernel == 'linrbf':
+            return Kernels.linrbf(x1, x2)
+        elif self.kernel == 'rbfpoly':
+            return Kernels.rbfpoly(x1, x2)
+        elif self.kernel == 'rbfcosine':
+            return Kernels.rbfpoly(x1, x2)
         
     def fit(self, X):
         '''
@@ -60,8 +66,8 @@ class kPCA(Kernels):
         self.normKernel = self.kernelize(X, X) - 2*1/X.shape[0]*np.ones((X.shape[0], X.shape[0])).dot(self.kernelize(X, X)) + \
                             1/X.shape[0]*np.ones((X.shape[0], X.shape[0])).dot(np.dot(1/X.shape[0]*np.ones((X.shape[0], X.shape[0])), self.kernelize(X, X)))
         self.eival, self.eivect = np.linalg.eig(self.normKernel)
-        self.sorted_eigen = np.argsort(self.eival[:self.k])[::-1]
         #sort eigen values and return explained variance
+        self.sorted_eigen = np.argsort(self.eival[:self.k])[::-1]
         self.explained_variance = self.explained_variance_()
         #return eigen value and corresponding eigenvectors
         self.eival, self.eivect = self.eival[:self.k], self.eivect[:, self.sorted_eigen]
@@ -75,8 +81,4 @@ class kPCA(Kernels):
         return self.kernelize(self.X, self.X).dot(self.eivect)
     
 #%% Testing
-        
-kpca = kPCA(kernel='linear').fit(X)
-kpca.explained_variance
-newX = kpca.fit_transform()
-plt.scatter(newX[:, 0], newX[:, 1], c = y)
+
