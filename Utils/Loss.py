@@ -24,14 +24,14 @@ class loss:
         return 1/(1  + np.exp(-(np.dot(X, beta))))
     
     @staticmethod
-    def hinge(X, y, beta):
+    def hinge(X, y, beta, b):
         '''
         Hinge loss function
         is used for Support vector machines (SVM)
         :params: X: traing data at ith iteration
         :return: 0 or max margin
         '''
-        return np.maximum(0, 1 - y*(np.dot(X, beta)))
+        return np.maximum(0, 1 - y*(np.dot(X, beta) + b))
     
     @staticmethod
     def relu(X, beta):
@@ -55,7 +55,7 @@ class loss:
         :params: X: traing data at ith iteration
         :return: square loss
         '''
-        return .5(np.dot(X, beta) + 1)
+        return .5*(np.dot(X, beta) + 1)
     
     @staticmethod
     def exponential(X, beta):
