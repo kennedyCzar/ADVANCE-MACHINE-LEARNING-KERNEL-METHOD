@@ -54,15 +54,6 @@ class PCA:
         '''
         return self.X.dot(self.eivect)
 
-#%% Testing
-import matplotlib.pyplot as plt
-from sklearn.datasets import load_iris
-
-X, y = load_iris().data, load_iris().target
-A = np.array([[1, 2], [3, 4], [5, 6]])
-pca = PCA(k = 2).fit(X)
-newX = pca.fit_transform()
-plt.scatter(newX[:, 0], newX[:, 1], c = y)
 
 
 
