@@ -86,7 +86,7 @@ class KLR(EvalC, loss, Kernels):
         :params: X: NxD feature space
         :params: y: Dx1 dimension
         '''
-        alpha = np.random.randn(X.shape[0])
+        alpha = np.zeros(X.shape[0])
         self.alph_s = np.outer(alpha, alpha) #alpha_i's alpha_j's
         self.y_i_s = self.y_i(y) #y_i's y_j's
         self.k = self.kernelize(X, X)
@@ -116,7 +116,7 @@ class KLR(EvalC, loss, Kernels):
         else:
             self.lr = lr
         if not iterations:
-            iterations = 100
+            iterations = 3
             self.iterations = iterations
         else:
             self.iterations = iterations
@@ -124,13 +124,15 @@ class KLR(EvalC, loss, Kernels):
         self.alpha, self.alpha_i_s, self.y_i_s,  self.knl = self.alpha_y_i_kernel(X, y)
         for ii in range(self.iterations):
             self.cost_rec[ii] = self.cost()
-            if self.cost_rec[ii] != np.inf:
-                print(f"Cost of computation: {self.cost_rec[ii]}")
-                #compute the gradient
-                self.alpha = self.alpha - self.lr*(self.knl.dot(self.Y)*(np.ones(self.X.shape[0]) - self.activation()) + self.lamda * np.dot(self.knl, self.alpha))
+            print(f"Cost of computation: {self.cost_rec[ii]}")
+            #compute the gradient
+#            self.hettian = -self.knl.T.dot((self.activation()*(1 - self.activation())*np.eye(X.shape[0])).dot(self.knl)) - self.lamda*self.knl
+            self.alpha = self.alpha - self.lr*(self.knl.dot(self.Y)*(np.ones(self.X.shape[0]) - self.activation()) + self.lamda * np.dot(self.knl, self.alpha))
 #                self.alpha = self.alpha - self.knl.dot(self.Y - self.activation() - self.lamda*self.alpha)
-            else:
-                break
+#            if self.cost_rec[ii] >= self.cost_rec[ii -1]:
+#                break
+#            else:
+#                continue
         return self
     
     def predict(self, X):
@@ -235,8 +237,8 @@ class StochKLR(EvalC, loss, Kernels):
          loss as seen in paper 1/len(self.Y)*np.ones(self.X.shape[0]).T.dot(1 + np.exp(-self.knl.dot(self.Y)))
         '''
         
-        return -1/len(Y)* Y.T.dot(np.dot(kenl, alpha)) - np.sum(np.log(1 + np.exp(np.dot(kenl, alpha)))) -\
-                .5*self.lamda*np.dot(alpha.T, np.dot(alpha, kenl))
+        return -1/len(Y)*(Y.T.dot(np.dot(kenl, alpha)) - np.sum(np.log(1 + np.exp(np.dot(kenl, alpha)))) -\
+                .5*self.lamda*np.dot(alpha.T, np.dot(alpha, kenl)))
 
         
     def fit(self, X, y, lr:float = None, iterations:int = None):
@@ -253,7 +255,7 @@ class StochKLR(EvalC, loss, Kernels):
         else:
             self.lr = lr
         if not iterations:
-            iterations = 1
+            iterations = 5
             self.iterations = iterations
         else:
             self.iterations = iterations
@@ -261,7 +263,7 @@ class StochKLR(EvalC, loss, Kernels):
         self.alpha, self.alpha_i_s, self.y_i_s,  self.knl = self.alpha_y_i_kernel(X, y)
         ylen = len(self.Y)
         for ii in range(self.iterations):
-            sampledCost = []
+            self.sampledCost = []
             for ij in range(ylen):
                 random_samples = np.random.randint(1, ylen)
                 X_samp = self.X[:random_samples]
@@ -270,10 +272,16 @@ class StochKLR(EvalC, loss, Kernels):
                 self.knlsample = self.kernelsamp(X_samp)
                 self.alphasample = self.alphasample - self.lr*(self.knlsample.dot(Y_samp)*(np.ones(X_samp.shape[0]) - self.activation(self.knlsample, self.alphasample)) + self.lamda * np.dot(self.knlsample, self.alphasample))
                 self.alpha[:random_samples] = self.alphasample
-                sampledCost.append(self.cost(self.knlsample, self.alphasample, Y_samp))
-            self.cost_rec[ii] = np.sum(sampledCost)
+                self.sampledCost.append(self.cost(self.knlsample, self.alphasample, Y_samp))
+                if self.sampledCost[ij] >= self.sampledCost[ij -1]:
+                    break
+                else:
+                    continue
+            self.cost_rec[ii] = np.sum(self.sampledCost)
             print('*'*40)
             print('%s iteratiion, cost = %s'%(ii, self.cost_rec[ii]))
+            if self.cost_rec[ii] == np.inf:
+                break
         return self
     
     def predict(self, X):
@@ -287,21 +295,23 @@ class StochKLR(EvalC, loss, Kernels):
     
     
 #%% Test
-import matplotlib.pyplot as plt
-from sklearn.datasets import make_blobs, make_moons, make_circles
-from sklearn.model_selection import train_test_split
-X, y = make_moons(1000, noise = .05)
-X, y = make_blobs(n_samples=1000, centers=2, n_features=2)
-X, y = make_circles(n_samples = 1000, noise = .10, factor=.5)
-X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size = 0.3)
-klrmodel = KLR(kernel='linear').fit(X_train, Y_train)
-klrmodel.predict(X_test)
-klrmodel.summary(Y_test, klrmodel.predict(X_test), klrmodel.alpha)
-plt.scatter(X_test[:, 0], X_test[:, 1], c = klrmodel.predict(X_test), cmap = 'coolwarm')       
-
-#%%
-klrmodel_irls = StochKLR(kernel='linear').fit(X_train, Y_train)
-klrmodel_irls.predict(X_test)
-klrmodel_irls.summary(Y_test, klrmodel_irls.predict(X_test), klrmodel_irls.alpha)
-plt.scatter(X_test[:, 0], X_test[:, 1], c = klrmodel_irls.predict(X_test), cmap = 'coolwarm')       
-
+#import matplotlib.pyplot as plt
+#from sklearn.datasets import make_blobs, make_moons, make_circles, make_classification
+#from sklearn.model_selection import train_test_split
+#X, y = make_moons(1000, noise = .05)
+#X, y = make_blobs(n_samples=1000, centers=2, n_features=2)
+#X, y = make_circles(n_samples = 1000, noise = .05, factor=.5)
+#X, y = make_classification(n_samples=1000,n_features=20)
+#X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size = 0.3)
+#klrmodel = KLR(kernel='rbf').fit(X_train, Y_train)
+#klrmodel.predict(X_test)
+#klrmodel.summary(Y_test, klrmodel.predict(X_test), klrmodel.alpha)
+#plt.scatter(X_test[:, 0], X_test[:, 1], c = klrmodel.predict(X_test), cmap = 'coolwarm')       
+#
+#plt.plot(np.arange(5), klrmodel.cost_rec)
+##%%
+#klrmodel_irls = StochKLR(kernel='rbf').fit(X_train, Y_train)
+#klrmodel_irls.predict(X_test)
+#klrmodel_irls.summary(Y_test, klrmodel_irls.predict(X_test), klrmodel_irls.alpha)
+#plt.scatter(X_test[:, 0], X_test[:, 1], c = klrmodel_irls.predict(X_test), cmap = 'coolwarm')       
+#plt.plot(np.arange(10), klrmodel_irls.cost_rec)
