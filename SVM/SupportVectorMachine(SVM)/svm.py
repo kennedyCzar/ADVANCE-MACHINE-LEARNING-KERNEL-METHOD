@@ -8,11 +8,11 @@ Created on Mon Sep 30 11:51:41 2019
 
 from __future__ import absolute_import
 import numpy as np
-from Utils.utils import EvalR
+from Utils.utils import EvalR, EvalC
 from Utils.Loss import loss
 
 
-class linearSVM(loss):
+class linearSVM(EvalC, loss):
     def __init__(self, C = None):
         '''
         Linear SVM via Gradient descent
@@ -20,7 +20,7 @@ class linearSVM(loss):
                     Default value is 1.0.
         '''
         if not C:
-            C = 10
+            C = .01
             self.C = C
         else:
             self.C = C
@@ -88,7 +88,7 @@ class linearSVM(loss):
         return yhat
     
 
-class StochasticlinearSVM(loss):
+class StochasticlinearSVM(EvalC, loss):
     def __init__(self, C = None):
         '''
         Linear SVM via Stochastic Gradient descent
@@ -96,7 +96,7 @@ class StochasticlinearSVM(loss):
                     Default value is 0.1.
         '''
         if not C:
-            C = 10.0
+            C = .01
             self.C = C
         else:
             self.C = C
@@ -122,7 +122,7 @@ class StochasticlinearSVM(loss):
         
     def fit(self, X, y, alpha:float = None, iterations:int = None, earlystoping = None):
         if not alpha:
-            alpha = 1e-5
+            alpha = 1e-2
             self.alpha = alpha
         else:
             self.alpha = alpha
@@ -169,22 +169,22 @@ class StochasticlinearSVM(loss):
         return yhat
               
 #%%
-import matplotlib.pyplot as plt
-from sklearn.datasets import make_blobs, make_moons
-from sklearn.model_selection import train_test_split
-X, y = make_moons(n_samples=1000, noise=.1)
-X, y = make_blobs(n_samples=1000, centers=2, n_features=2)
-X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size = 0.3)
-lsvm = linearSVM().fit(X_train, Y_train)
-lsvm.predict(X_test)
-plt.scatter(X_test[:, 0], X_test[:, 1], c = lsvm.predict(X_test))
-np.mean(lsvm.predict(X_test) == Y_test)
-plt.plot(np.arange(lsvm.iterations), lsvm.cost_rec)
-
-slsvm = StochasticlinearSVM().fit(X_train, Y_train)
-slsvm.predict(X_test)
-plt.scatter(X_test[:, 0], X_test[:, 1], c = slsvm.predict(X_test))
-np.mean(slsvm.predict(X_test) == Y_test)
-plt.plot(np.arange(slsvm.iterations), slsvm.cost_rec)
+#import matplotlib.pyplot as plt
+#from sklearn.datasets import make_blobs, make_moons
+#from sklearn.model_selection import train_test_split
+#X, y = make_moons(n_samples=1000, noise=.1)
+#X, y = make_blobs(n_samples=1000, centers=2, n_features=2)
+#X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size = 0.3)
+#lsvm = linearSVM().fit(X_train, Y_train)
+#lsvm.predict(X_test)
+#plt.scatter(X_test[:, 0], X_test[:, 1], c = lsvm.predict(X_test))
+#np.mean(lsvm.predict(X_test) == Y_test)
+#plt.plot(np.arange(lsvm.iterations), lsvm.cost_rec)
+#
+#slsvm = StochasticlinearSVM().fit(X_train, Y_train)
+#slsvm.predict(X_test)
+#plt.scatter(X_test[:, 0], X_test[:, 1], c = slsvm.predict(X_test))
+#np.mean(slsvm.predict(X_test) == Y_test)
+#plt.plot(np.arange(slsvm.iterations), slsvm.cost_rec)
 
 
