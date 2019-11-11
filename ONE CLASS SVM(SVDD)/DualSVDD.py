@@ -21,7 +21,7 @@ class DualSVDD(EvalC, loss, Kernels):
         else:
             self.kernel = kernel
         if not C:
-            C = 0.01
+            C = .01
             self.C = C
         else:
             self.C = C
@@ -72,13 +72,14 @@ class DualSVDD(EvalC, loss, Kernels):
         :Return type: cost
         '''
         return np.sum(self.alpha*self.knl.diagonal()) - self.alpha.dot(np.dot(self.alpha, self.knl))
-#    
+    
     def alpha_y_i_kernel(self, X):
         '''
         :params: X: NxD feature space
         :params: y: Dx1 dimension
         '''
-        alpha = np.ones(X.shape[0])
+#        alpha = np.ones(X.shape[0])
+        alpha = np.random.dirichlet(np.ones(X.shape[0]),size=1).reshape(-1, )
         self.alph_s = np.outer(alpha, alpha) #alpha_i's alpha_j's
         self.k = self.kernelize(X, X)
         return (alpha, self.alph_s, self.k)
@@ -185,7 +186,8 @@ class DualSVDD_NE(EvalC, loss, Kernels):
         :params: X: NxD feature space
         :params: y: Dx1 dimension
         '''
-        alpha = np.ones(X.shape[0])
+#        alpha = np.ones(X.shape[0])
+        alpha = np.random.dirichlet(np.ones(X.shape[0]),size=1).reshape(-1, )
         self.alph_s = np.outer(alpha, alpha) #alpha_i's alpha_j's
         self.k = self.kernelize(X, X)
         return (alpha, self.alph_s, self.k)
@@ -217,15 +219,15 @@ class DualSVDD_NE(EvalC, loss, Kernels):
             self.alpha[self.alpha < 0 ] = 0
             self.alpha[self.alpha > 1] = 1
         self.indices = np.where((self.alpha > 0))[0]
-        self.R_squared = self.kernelize(self.X, self.X[self.indices]).diagonal() - 2*np.dot(self.alpha, self.kernelize(self.X, self.X[self.indices])) + \
-                         self.alpha.dot(np.dot(self.alpha, self.kernelize(self.X, self.X[self.indices])))
-        self.b = np.mean(self.R_squared - self.alpha.dot(np.dot(self.alpha, self.kernelize(self.X, self.X[self.indices]))))
+        self.R_squared = self.kernelize(self.X[self.indices], self.X[self.indices]).diagonal() - 2*np.dot(self.alpha[self.indices], self.kernelize(self.X[self.indices], self.X[self.indices])) + \
+                         self.alpha[self.indices].dot(np.dot(self.alpha[self.indices], self.kernelize(self.X[self.indices], self.X[self.indices])))
+        self.b = np.mean(self.R_squared - self.alpha[self.indices].dot(np.dot(self.alpha[self.indices], self.kernelize(self.X[self.indices], self.X[self.indices]))))
         self.support_vectors = self.indices
         print(f'Total support vectors required for classification: {len(self.support_vectors)}')
         return self
     
     def predict(self, X):
-        yhat:int = np.sign(2*np.dot(self.alpha, self.kernelize(self.X, X)) + self.b)
+        yhat:int = np.sign(2*np.dot(self.alpha, self.kernelize(self.X, X)) + self.kernelize(X, self.X)[:, 0] + self.b)
         for enum, ii in enumerate(yhat):
             if yhat[enum] == -1:
                 yhat[enum] = 0
@@ -241,7 +243,7 @@ class MiniDualSVDD(EvalC, loss, Kernels):
         else:
             self.kernel = kernel
         if not C:
-            C = 1e-2
+            C = .01
             self.C = C
         else:
             self.C = C
@@ -301,6 +303,7 @@ class MiniDualSVDD(EvalC, loss, Kernels):
         :params: y: Dx1 dimension
         '''
         alpha = np.ones(X.shape[0])
+#        alpha = np.random.dirichlet(np.ones(X.shape[0]),size=1).reshape(-1, )
         self.alph_s = np.outer(alpha, alpha) #alpha_i's alpha_j's
         self.k = self.kernelize(X, X)
         return (alpha, self.alph_s, self.k)
@@ -342,27 +345,27 @@ class MiniDualSVDD(EvalC, loss, Kernels):
                 self.alphasample = self.alphasample + self.lr * (self.knlsample.diagonal() - np.dot(self.knlsample, self.alphasample))
                 self.alpha[ij:ij+self.batch] = self.alphasample
                 self.alpha[self.alpha < 0] = 0
-                self.alpha[self.alpha > 0] = self.alpha
+#                self.alpha[self.alpha > 1] = 1
                 self.alpha[self.alpha > self.C] = self.C
                 self.alpha = np.round(self.alpha, 2)
                 self.sampledCost.append(self.cost(self.knlsample, self.alphasample))
-                if self.sampledCost[ij] >= self.sampledCost[ij -1]:
-                    break
-                else:
-                    continue
+#                if self.sampledCost[ij] >= self.sampledCost[ij -1]:
+#                    break
+#                else:
+#                    continue
             self.cost_rec[ii] = np.sum(self.sampledCost)
             print('*'*40)
             print(f'Cost of computation: {self.cost_rec[ii]}')
         self.indices = np.where((self.alpha >= 0) & (self.alpha <= self.C))[0]
-        self.R_squared = self.kernelize(self.X, self.X[self.indices]).diagonal() - 2*np.dot(self.alpha, self.kernelize(self.X, self.X[self.indices])) + \
-                         self.alpha.dot(np.dot(self.alpha, self.kernelize(self.X, self.X[self.indices])))
-        self.b = np.mean(self.R_squared - self.alpha.dot(np.dot(self.alpha, self.kernelize(self.X, self.X[self.indices]))))
+        self.R_squared = self.kernelize(self.X[self.indices], self.X[self.indices]).diagonal() - 2*np.dot(self.alpha[self.indices], self.kernelize(self.X[self.indices], self.X[self.indices])) + \
+                         self.alpha[self.indices].dot(np.dot(self.alpha[self.indices], self.kernelize(self.X[self.indices], self.X[self.indices])))
+        self.b = np.mean(self.R_squared - self.alpha[self.indices].dot(np.dot(self.alpha[self.indices], self.kernelize(self.X[self.indices], self.X[self.indices]))))
         self.support_vectors = self.indices
         print(f'Total support vectors required for classification: {len(self.support_vectors)}')
         return self
     
     def predict(self, X):
-        yhat:int = np.sign(2*np.dot(self.alpha, self.kernelize(self.X, X)) + self.b)
+        yhat:int = np.sign(2*np.dot(self.alpha, self.kernelize(self.X, X)) + self.kernelize(X, self.X)[:, 0] + self.b)
         for enum, ii in enumerate(yhat):
             if yhat[enum] == -1:
                 yhat[enum] = 0
