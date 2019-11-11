@@ -89,12 +89,7 @@ for ii in range(1, dfswis.shape[1]):
 for ii in range(1, dfiris.shape[1]):
     ax[4, 0].scatter(dfiris[:, 0], dfiris[:, ii], c = yiris, s = s, cmap = color)
 #--linear
-#for ii in range(1, 10):
-#    for p in range(5):
-#        for ij in kernels:
-#            for w in data_name.keys():
-#                ax[p, ii].scatter(kernel_outcome[ij][w][:, 0], kernel_outcome[ij][w][:, 1], c = ycircle, s = s, cmap = color)
-#                
+
 ax[0, 1].scatter(kernel_outcome['linear']['circle'][:, 0], kernel_outcome['linear']['circle'][:, 1], c = ycircle, s = s, cmap = color)
 ax[1, 1].scatter(kernel_outcome['linear']['moon'][:, 0], kernel_outcome['linear']['moon'][:, 1], c = ymoon, s = s, cmap = color)
 ax[2, 1].scatter(kernel_outcome['linear']['class'][:, 0], kernel_outcome['linear']['class'][:, 1], c = yclass, s = s, cmap = color)
