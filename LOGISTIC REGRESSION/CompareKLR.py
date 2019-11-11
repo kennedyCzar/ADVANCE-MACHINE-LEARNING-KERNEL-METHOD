@@ -18,6 +18,8 @@ from kernellogistic import KLR, StochKLR
 from logisticregression import Logistic, stochasticLogistic
 import time
 import os
+
+
 np.random.seed(1000)
 plt.rcParams.update({'font.size': 8})
 plt.rc('text', usetex=True)
@@ -48,7 +50,7 @@ def data(samples = None):
     return train_test
         
 train_test = data()
-        
+
 #%%
 
 kernels  = ['linear', 'rbf', 'sigmoid', 'polynomial',
@@ -104,6 +106,34 @@ for _ in range(3):
                     kernel_outcome[ii]['f1'].append(klogit.f1(q['test'][1], klogit.predict(q['test'][0])))
                     kernel_outcome[ii]['impr_f1'].append(klogit.fscore(q['test'][1], klogit.predict(q['test'][0]), klogit.alpha))
         
+#%% Convergence Rate
+kernels  = ['linear', 'rbf', 'sigmoid', 'polynomial',
+            'linrbf', 'rbfpoly', 'etakernel', 'laplace']
+
+logit = stochasticLogistic(0.1, 100).fit(train_test['moon']['train'][0], train_test['moon']['train'][1])
+logis = Logistic().fit(train_test['moon']['train'][0], train_test['moon']['train'][1], 0.1, 100)
+rbf = StochKLR(kernel = 'rbf').fit(train_test['moon']['train'][0], train_test['moon']['train'][1], iterations=100)
+sigmoid = StochKLR(kernel = 'sigmoid').fit(train_test['moon']['train'][0], train_test['moon']['train'][1], iterations=100)
+laplace = StochKLR(kernel = 'laplace').fit(train_test['moon']['train'][0], train_test['moon']['train'][1], iterations=100)
+polynomial = StochKLR(kernel = 'polynomial').fit(train_test['moon']['train'][0], train_test['moon']['train'][1], iterations=100)
+linrbf = StochKLR(kernel = 'linrbf').fit(train_test['moon']['train'][0], train_test['moon']['train'][1], iterations=100)
+rbfpoly = StochKLR(kernel = 'rbfpoly').fit(train_test['moon']['train'][0], train_test['moon']['train'][1], iterations=100)
+etakernel = StochKLR(kernel = 'etakernel').fit(train_test['moon']['train'][0], train_test['moon']['train'][1], iterations=100)
+
+plt.plot(np.arange(100), logit.cost_rec, label = 'Linear SGD')
+plt.plot(np.arange(100), logis.cost_rec, label = 'Linear GD')
+plt.plot(np.arange(100), rbf.cost_rec, label = 'rbf')
+plt.plot(np.arange(100), sigmoid.cost_rec, label = 'sigmoid')
+plt.plot(np.arange(100), laplace.cost_rec, label = 'laplace')
+plt.plot(np.arange(100), polynomial.cost_rec, label = 'poly')
+plt.plot(np.arange(100), linrbf.cost_rec, label = 'linrbf')
+#plt.plot(np.arange(100), rbfpoly.cost_rec, label = 'rbfpoly')
+#plt.plot(np.arange(100), etakernel.cost_rec, label = 'etakernel')
+plt.title('Convergence rate for SGD and GD')
+plt.ylabel('Cost of computation')
+plt.xlabel('Number of iterations')
+plt.legend()
+
 #%% Visualize dataset
 color = 'coolwarm_r'
 fig, ax = plt.subplots(4, 1, figsize=(2, 7),gridspec_kw=dict(hspace=0.01, wspace=0.01),
