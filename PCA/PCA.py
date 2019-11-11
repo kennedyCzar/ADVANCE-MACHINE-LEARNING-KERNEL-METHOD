@@ -36,6 +36,8 @@ class PCA:
         :param: X: NxD
         '''
         self.X = X
+        self.Xcopy = X
+        self.mean = np.mean(self.X, axis = 0)
         #centered mean
         self.X = self.X - np.mean(self.X, axis = 0)
         #covariance
@@ -46,6 +48,7 @@ class PCA:
         self.explained_variance = self.explained_variance_()
         #return eigen value and corresponding eigenvectors
         self.eival, self.eivect = self.eival[:self.k], self.eivect[:, self.sorted_eigen]
+        self.components_ = self.eivect.T
         return self
     
     def fit_transform(self):
@@ -53,8 +56,13 @@ class PCA:
         :Return: transformed datapoints
         '''
         return self.X.dot(self.eivect)
-
-
+    
+    def inverse_transform(self):
+        '''
+        :Return the inverse of input data
+        '''
+        self.transformed = self.X.dot(self.eivect)
+        return self.transformed.dot(self.components_) + self.mean
 
 
 
