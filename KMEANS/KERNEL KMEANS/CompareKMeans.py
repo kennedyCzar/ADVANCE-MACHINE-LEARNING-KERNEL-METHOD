@@ -28,7 +28,7 @@ dfmoon, ymoon = make_moons(n_samples=samples, noise=.05)
 dfcircle, ycircle = make_circles(n_samples = samples, noise = .10, factor=.05)
 dfclass, yclass = make_classification(n_samples = samples, n_features=20)
 dfiris, yiris = load_iris().data, load_iris().target
-plt.scatter(dfiris[:, 0], dfiris[:, 1], c = yiris)
+#plt.scatter(dfiris[:, 0], dfiris[:, 1], c = yiris)
 
 #%%
 kernels  = ['linear', 'rbf', 'sigmoid', 'polynomial',
@@ -49,7 +49,7 @@ for p, q in data_name.items():
     for ii in kernels:
         start = time.time()
         if p == 'moon':
-            gamma = 1
+            gamma = 10
             d = 3
             kmeans = kkMeans(k = 2, kernel = ii, gamma = gamma).fit_predict(q[0])
             kernel_outcome[ii]['acc'].append(kmeans.accuracy(q[1], kmeans.clusters))
@@ -58,7 +58,7 @@ for p, q in data_name.items():
             kernel_outcome[ii]['f1'].append(kmeans.f1(q[1], kmeans.clusters))
             kernel_outcome[ii]['randind'].append(kmeans.rand_index_score(kmeans.clusters, q[1]))
         elif p == 'circle':
-            gamma = 1
+            gamma = 10
             d = 3
             kmeans = kkMeans(k = 2, kernel = ii, gamma = gamma).fit_predict(q[0])
             kernel_outcome[ii]['acc'].append(kmeans.accuracy(q[1], kmeans.clusters))
@@ -67,7 +67,7 @@ for p, q in data_name.items():
             kernel_outcome[ii]['f1'].append(kmeans.f1(q[1], kmeans.clusters))
             kernel_outcome[ii]['randind'].append(kmeans.rand_index_score(kmeans.clusters, q[1]))
         elif p == 'class':
-            gamma = 1
+            gamma = 10
             d = 2
             kmeans = kkMeans(k = 2, kernel = ii, gamma = gamma).fit_predict(q[0])
             kernel_outcome[ii]['acc'].append(kmeans.accuracy(q[1], kmeans.clusters))
@@ -76,7 +76,7 @@ for p, q in data_name.items():
             kernel_outcome[ii]['f1'].append(kmeans.f1(q[1], kmeans.clusters))
             kernel_outcome[ii]['randind'].append(kmeans.rand_index_score(kmeans.clusters, q[1]))
         elif p == 'iris':
-            gamma = 0.1
+            gamma = 10
             d = 2
             kmeans = kkMeans(k = 3, kernel = ii, gamma = gamma).fit_predict(q[0])
             kernel_outcome[ii]['acc'].append(kmeans.accuracy(q[1], kmeans.clusters))
@@ -90,95 +90,96 @@ for p, q in data_name.items():
         
 #%%
 
-s = .5
-color = 'coolwarm_r'
-fig, ax = plt.subplots(4, 9, figsize=(12, 4),gridspec_kw=dict(hspace=0, wspace=0),
-                       subplot_kw={'xticks':[], 'yticks':[]})
-
-ax[0, 0].scatter(dfcircle[:, 0], dfcircle[:, 1], c = ycircle, s = s, cmap = color)
-ax[1, 0].scatter(dfmoon[:, 0], dfmoon[:, 1], c = ymoon, s = 1, cmap = color)
-#for ii in range(1, dfclass.shape[1]):
-ax[2, 0].scatter(dfclass[:, 0], dfclass[:, 1], c = yclass, s = s, cmap = color)
-#for ii in range(1, dfiris.shape[1]):
-ax[3, 0].scatter(dfiris[:, 0], dfiris[:, 1], c = yiris, s = s, cmap = color)
-#--linear
-ax[0, 1].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['linear']['circle'], s = s, cmap = color)
-ax[1, 1].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['linear']['moon'], s = 1, cmap = color)
-#for ii in range(1, dfclass.shape[1]):
-ax[2, 1].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['linear']['class'], s = s, cmap = color)
-#for ii in range(1, dfiris.shape[1]):
-ax[3, 1].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['linear']['iris'], s = s, cmap = color)
-#--linear
-ax[0, 2].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['rbf']['circle'], s = s, cmap = color)
-ax[1, 2].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['rbf']['moon'], s = 1, cmap = color)
-#for ii in range(1, dfclass.shape[1]):
-ax[2, 2].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['rbf']['class'], s = s, cmap = color)
-#for ii in range(1, dfiris.shape[1]):
-ax[3, 2].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['rbf']['iris'], s = s, cmap = color)
-
-#--linear
-ax[0, 3].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['sigmoid']['circle'], s = s, cmap = color)
-ax[1, 3].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['sigmoid']['moon'], s = 1, cmap = color)
-#for ii in range(1, dfclass.shape[1]):
-ax[2, 3].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['sigmoid']['class'], s = s, cmap = color)
-#for ii in range(1, dfiris.shape[1]):
-ax[3, 3].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['sigmoid']['iris'], s = s, cmap = color)
+def plot():
+    s = .5
+    color = 'coolwarm_r'
+    fig, ax = plt.subplots(4, 9, figsize=(12, 4),gridspec_kw=dict(hspace=0, wspace=0),
+                           subplot_kw={'xticks':[], 'yticks':[]})
+    
+    ax[0, 0].scatter(dfcircle[:, 0], dfcircle[:, 1], c = ycircle, s = s, cmap = color)
+    ax[1, 0].scatter(dfmoon[:, 0], dfmoon[:, 1], c = ymoon, s = 1, cmap = color)
+    #for ii in range(1, dfclass.shape[1]):
+    ax[2, 0].scatter(dfclass[:, 0], dfclass[:, 1], c = yclass, s = s, cmap = color)
+    #for ii in range(1, dfiris.shape[1]):
+    ax[3, 0].scatter(dfiris[:, 0], dfiris[:, 1], c = yiris, s = s, cmap = color)
     #--linear
-ax[0, 4].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['polynomial']['circle'], s = s, cmap = color)
-ax[1, 4].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['polynomial']['moon'], s = 1, cmap = color)
-#for ii in range(1, dfclass.shape[1]):
-ax[2, 4].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['polynomial']['class'], s = s, cmap = color)
-#for ii in range(1, dfiris.shape[1]):
-ax[3, 4].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['polynomial']['iris'], s = s, cmap = color)
-#--linear
-ax[0, 5].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['laplace']['circle'], s = s, cmap = color)
-ax[1, 5].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['laplace']['moon'], s = 1, cmap = color)
-#for ii in range(1, dfclass.shape[1]):
-ax[2, 5].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['laplace']['class'], s = s, cmap = color)
-#for ii in range(1, dfiris.shape[1]):
-ax[3, 5].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['laplace']['iris'], s = s, cmap = color)
-#--linear
-ax[0, 6].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['linrbf']['circle'], s = s, cmap = color)
-ax[1, 6].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['linrbf']['moon'], s = 1, cmap = color)
-#for ii in range(1, dfclass.shape[1]):
-ax[2, 6].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['linrbf']['class'], s = s, cmap = color)
-#for ii in range(1, dfiris.shape[1]):
-ax[3, 6].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['linrbf']['iris'], s = s, cmap = color)
-#--linear
-ax[0, 7].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['rbfpoly']['circle'], s = s, cmap = color)
-ax[1, 7].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['rbfpoly']['moon'], s = 1, cmap = color)
-#for ii in range(1, dfclass.shape[1]):
-ax[2, 7].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['rbfpoly']['class'], s = s, cmap = color)
-#for ii in range(1, dfiris.shape[1]):
-ax[3, 7].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['rbfpoly']['iris'], s = s, cmap = color)
+    ax[0, 1].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['linear']['circle'], s = s, cmap = color)
+    ax[1, 1].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['linear']['moon'], s = 1, cmap = color)
+    #for ii in range(1, dfclass.shape[1]):
+    ax[2, 1].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['linear']['class'], s = s, cmap = color)
+    #for ii in range(1, dfiris.shape[1]):
+    ax[3, 1].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['linear']['iris'], s = s, cmap = color)
+    #--linear
+    ax[0, 2].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['rbf']['circle'], s = s, cmap = color)
+    ax[1, 2].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['rbf']['moon'], s = 1, cmap = color)
+    #for ii in range(1, dfclass.shape[1]):
+    ax[2, 2].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['rbf']['class'], s = s, cmap = color)
+    #for ii in range(1, dfiris.shape[1]):
+    ax[3, 2].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['rbf']['iris'], s = s, cmap = color)
     
-#--linear
-ax[0, 8].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['etakernel']['circle'], s = s, cmap = color)
-ax[1, 8].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['etakernel']['moon'], s = 1, cmap = color)
-#for ii in range(1, dfclass.shape[1]):
-ax[2, 8].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['etakernel']['class'], s = s, cmap = color)
-#for ii in range(1, dfiris.shape[1]):
-ax[3, 8].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['etakernel']['iris'], s = s, cmap = color)
+    #--linear
+    ax[0, 3].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['sigmoid']['circle'], s = s, cmap = color)
+    ax[1, 3].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['sigmoid']['moon'], s = 1, cmap = color)
+    #for ii in range(1, dfclass.shape[1]):
+    ax[2, 3].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['sigmoid']['class'], s = s, cmap = color)
+    #for ii in range(1, dfiris.shape[1]):
+    ax[3, 3].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['sigmoid']['iris'], s = s, cmap = color)
+        #--linear
+    ax[0, 4].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['polynomial']['circle'], s = s, cmap = color)
+    ax[1, 4].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['polynomial']['moon'], s = 1, cmap = color)
+    #for ii in range(1, dfclass.shape[1]):
+    ax[2, 4].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['polynomial']['class'], s = s, cmap = color)
+    #for ii in range(1, dfiris.shape[1]):
+    ax[3, 4].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['polynomial']['iris'], s = s, cmap = color)
+    #--linear
+    ax[0, 5].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['laplace']['circle'], s = s, cmap = color)
+    ax[1, 5].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['laplace']['moon'], s = 1, cmap = color)
+    #for ii in range(1, dfclass.shape[1]):
+    ax[2, 5].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['laplace']['class'], s = s, cmap = color)
+    #for ii in range(1, dfiris.shape[1]):
+    ax[3, 5].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['laplace']['iris'], s = s, cmap = color)
+    #--linear
+    ax[0, 6].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['linrbf']['circle'], s = s, cmap = color)
+    ax[1, 6].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['linrbf']['moon'], s = 1, cmap = color)
+    #for ii in range(1, dfclass.shape[1]):
+    ax[2, 6].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['linrbf']['class'], s = s, cmap = color)
+    #for ii in range(1, dfiris.shape[1]):
+    ax[3, 6].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['linrbf']['iris'], s = s, cmap = color)
+    #--linear
+    ax[0, 7].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['rbfpoly']['circle'], s = s, cmap = color)
+    ax[1, 7].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['rbfpoly']['moon'], s = 1, cmap = color)
+    #for ii in range(1, dfclass.shape[1]):
+    ax[2, 7].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['rbfpoly']['class'], s = s, cmap = color)
+    #for ii in range(1, dfiris.shape[1]):
+    ax[3, 7].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['rbfpoly']['iris'], s = s, cmap = color)
+        
+    #--linear
+    ax[0, 8].scatter(dfcircle[:, 0], dfcircle[:, 1], c = kernel_outcome['etakernel']['circle'], s = s, cmap = color)
+    ax[1, 8].scatter(dfmoon[:, 0], dfmoon[:, 1], c = kernel_outcome['etakernel']['moon'], s = 1, cmap = color)
+    #for ii in range(1, dfclass.shape[1]):
+    ax[2, 8].scatter(dfclass[:, 0], dfclass[:, 1], c = kernel_outcome['etakernel']['class'], s = s, cmap = color)
+    #for ii in range(1, dfiris.shape[1]):
+    ax[3, 8].scatter(dfiris[:, 0], dfiris[:, 1], c = kernel_outcome['etakernel']['iris'], s = s, cmap = color)
+        
     
+    
+    ax[0, 0].set_title('original')
+    ax[0, 1].set_title('linear')
+    ax[0, 2].set_title('rbf')
+    ax[0, 3].set_title('poly')
+    ax[0, 4].set_title('sigmoid')
+    ax[0, 5].set_title('laplace')
+    ax[0, 6].set_title('rbfpoly')
+    ax[0, 7].set_title('linrbf')
+    ax[0, 8].set_title('etakernel')
+    ax[0, 0].set_ylabel('Circle')
+    ax[1, 0].set_ylabel('Moons')
+    ax[2, 0].set_ylabel('classifciation')
+    ax[3, 0].set_ylabel('Iris')
+    fig.set_tight_layout(True)
 
+plot()
 
-ax[0, 0].set_title('original')
-ax[0, 1].set_title('linear')
-ax[0, 2].set_title('rbf')
-ax[0, 3].set_title('poly')
-ax[0, 4].set_title('sigmoid')
-ax[0, 5].set_title('laplace')
-ax[0, 6].set_title('rbfpoly')
-ax[0, 7].set_title('linrbf')
-ax[0, 8].set_title('etakernel')
-ax[0, 0].set_ylabel('Circle')
-ax[1, 0].set_ylabel('Moons')
-ax[2, 0].set_ylabel('classifciation')
-ax[3, 0].set_ylabel('Iris')
-fig.set_tight_layout(True)
-
-#%% Image compression
-
-
+#%%
 
 
