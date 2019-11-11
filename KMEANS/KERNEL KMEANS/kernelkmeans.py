@@ -104,7 +104,7 @@ class kkMeans(EvalC, Kernels):
             iteration = 100
             self.iteration = iteration
         else:
-            self.iteration
+            self.iteration = iteration
         self.X = X
         N, D = X.shape
         self.distance_ii = np.zeros((N, self.k))
