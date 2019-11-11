@@ -40,7 +40,7 @@ class kMeans:
             iteration = 100
             self.iteration = iteration
         else:
-            self.iteration
+            self.iteration = iteration
         self.X = X
         #random sample
         N, D = X.shape
