@@ -1,0 +1,2 @@
+##### CLASSICAL SVM [code](https://github.com/kennedyCzar/ADVANCE-MACHINE-LEARNING-KERNEL-METHOD/blob/master/SVM/SupportVectorMachine(SVM)/svm.py) | KERNEL SVM [CODE](https://github.com/kennedyCzar/ADVANCE-MACHINE-LEARNING-KERNEL-METHOD/blob/master/SVM/SupportVectorMachine(SVM)/kernelSVM.py)
+##### Support Vector Machine (SVM) is a discriminative classifier formally defined by a separating hyperplane. It is a powerful classification algorithm with good theoretical guarantees. 
