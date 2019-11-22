@@ -150,6 +150,17 @@ class EvalC:
         return EvalC.TN(A, P)/(EvalC.TN(A, P) + EvalC.FP(A, P))
     
     @staticmethod
+    def accuary_multiclass(A, P):
+        '''Accuracy for multiclass classification
+        when actual is True and prediction is True
+        
+        :params: A: Actual label
+        :params: P: predicted labels
+        :Return type: np.mean(Y == model.predict(X))
+        '''
+        return np.sum([A[ii] == P[ii] for ii in range(len(A)) if A[ii] == P[ii]])/len(A)
+
+    @staticmethod
     def f1(A, P):
         '''Docstring
         :params: A: Actual label
