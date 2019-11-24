@@ -148,7 +148,7 @@ class KLR(EvalC, loss, Kernels):
 class StochKLR(EvalC, loss, Kernels):
     def __init__(self, kernel = None, lamda = None):
         '''
-        Kernel Logistic Regression via Gradient Descent. [Solution 1]
+        Kernel Logistic Regression via Stochastic Gradient Descent. [Solution 1]
         ---------------------------------------------------------------------
         :param: kernel: kernel for computing Gram matrix
         :param: lamda: regularization parameter
