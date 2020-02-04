@@ -83,7 +83,6 @@ class TwoClassSVDD(EvalC, loss, Kernels):
         :params: y: Dx1 dimension
         '''
         alpha = np.ones(X.shape[0])
-#        alpha = np.random.dirichlet(np.ones(X.shape[0]),size=1).reshape(-1, )
         self.alph_s = np.outer(alpha, alpha) #alpha_i's alpha_j's
         self.k = self.kernelize(X, X)
         return (alpha, self.alph_s, self.k)
@@ -103,7 +102,7 @@ class TwoClassSVDD(EvalC, loss, Kernels):
         else:
             self.lr = lr
         if not iterations:
-            iterations = 100
+            iterations = 2
             self.iterations = iterations
         else:
             self.iterations = iterations
