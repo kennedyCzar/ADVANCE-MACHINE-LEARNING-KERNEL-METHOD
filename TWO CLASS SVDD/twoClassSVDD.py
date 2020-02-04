@@ -75,7 +75,7 @@ class TwoClassSVDD(EvalC, loss, Kernels):
         '''
         :Return type: cost
         '''
-        return self.alpha.dot(np.dot(self.alpha, self.knl)) - np.sum(self.alpha*y*(np.ones_like(self.alpha)*np.linalg.norm(x)))
+        return self.alpha.dot(np.dot(self.alpha, self.knl * self.y_i(self.y))) - np.sum(self.alpha*y*(np.ones_like(self.alpha)*np.linalg.norm(x)))
     
     def alpha_y_i_kernel(self, X):
         '''
@@ -112,7 +112,7 @@ class TwoClassSVDD(EvalC, loss, Kernels):
         for ii in range(self.iterations):
             self.cost_rec[ii] = self.cost(self.X, self.y)
             print(f'Cost of computation: {self.cost_rec[ii]}')
-            self.alpha = self.alpha + self.lr * (self.knl.diagonal() - np.dot(self.knl, self.alpha))
+            self.alpha = self.alpha + self.lr * (self.alpha * np.dot(self.y_i(self.y), self.knl).diagonal() - np.dot(self.knl, self.alpha * self.y))
             self.alpha[self.alpha < 0 ] = 0
             self.alpha[self.alpha > self.C] = self.C
         self.indices = np.where((self.alpha >= 0) & (self.alpha <= self.C))[0]
@@ -146,6 +146,6 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size = 0.3)
 plt.scatter(df[:, 0], df[:, 1])
 plt.scatter(X[:, 0], X[:, 1], c = y, cmap = 'coolwarm', s = 2) 
 
-tcl_dsvdd = TwoClassSVDD(kernel='linear').fit(X_train, Y_train)
+tcl_dsvdd = TwoClassSVDD(kernel='polynomial').fit(X_train, Y_train)
 plt.scatter(X_test[:, 0], X_test[:, 1], c = tcl_dsvdd.predict(X_test), cmap = 'coolwarm', s = 2) 
     
