@@ -13,7 +13,44 @@ import copy
 class kMeans:
     def __init__(self, k = None):
         '''
-        :param: k: number of clusters
+        Parameter
+        ----------
+        
+        k: Number of cluster center
+        
+        
+        Attributes
+        ------------
+        
+        X: data set containing x^{i} features
+        
+        N: number of data points in X
+        
+        D: dimension of X
+        
+        mu: mean of a vector
+        
+        prev_c: previous mean of cluster
+        
+        cluster: cluster label
+        
+        iteration: number of iteratio before convergence
+        
+        cost_rec: euclidean distance between new and previous clusters
+        
+        distance matrix: distance between a point and a cluster center
+        
+        newPoint: mean of the new point.
+        
+        example
+        -------
+        
+        >> km = kMeans(3).fit(x)
+        >> km.cluster
+        [out]: cluster labels [1, 1, 2, 2, 1, 1, 1, 2, 1]
+        >> plt.scatter(x[:, 0], x[:, 1], s = 1, c = km.cluster)
+        
+        
         '''
         if not k:
             k = 2
@@ -21,20 +58,35 @@ class kMeans:
         else:
             self.k = k
         return
+
     
+
     @staticmethod
-    def distance(x, nu, axs = 1):
+    def distance(x, mu, axs = 1):
         '''
-        :param: x: datapoint
-        :param: nu: mean
-        :retrun distance matrix
+        Parameter
+        ----------
+        
+        x: data point (observation)
+
+        mu: mean
+
+        Return type
+        ----------------
+        
+            distance matrix
+
         '''
-       
-        return np.linalg.norm(x - nu, axis = axs)
+        return np.linalg.norm(x - mu, axis = axs)
+
     
+
     def fit(self, X, iteration = None):
         '''
-        :param: X: NxD
+        Parameter
+        ------------
+        
+        X: NxD
         '''
         if not iteration:
             iteration = 100
@@ -43,56 +95,71 @@ class kMeans:
             self.iteration = iteration
         self.X = X
         #random sample
-        N, D = X.shape
-        #randomly initialize k centroids
-        self.nu = X[np.random.choice(N, self.k, replace = False)]
-        self.prev_c = np.zeros((self.k, D))
-        self.cluster = np.zeros(X.shape[0])
+        self.N, self.D = X.shape
+        #randomly initialize k centroids from given observations
+        self.mu = X[np.random.choice(self.N, self.k, replace = False)]
+        self.prev_c = np.zeros((self.k, self.D))
+        self.cluster = np.zeros(self.N)
         '''iterate by checking to see if new centroid
         of new center is same as old center, then we reached an
         optimum point.
         '''
         self.cost_rec = np.zeros(self.iteration)
         for self.iter in range(self.iteration):
-            self.cost_rec[self.iter] = np.linalg.norm(self.nu - self.prev_c)
+            self.cost_rec[self.iter] = np.linalg.norm(self.mu - self.prev_c)
             if self.cost_rec[self.iter] != 0:
-                for ik in range(X.shape[0]):
-                    self.distance_matrix = kMeans.distance(self.X[ik], self.nu)
+                for ik in range(self.N):
+                    self.distance_matrix = kMeans.distance(self.X[ik], self.mu)
                     self.cluster[ik] = np.argmin(self.distance_matrix)
-                self.prev_c = copy.deepcopy(self.nu)
+                self.prev_c = copy.deepcopy(self.mu)
                 for ij in range(self.k):
                     #mean of the new found clusters
-                    self.newPoints = [X[ii] for ii in range(X.shape[0]) if self.cluster[ii] == ij]
-                    self.nu[ij] = np.mean(self.newPoints, axis = 0)
+                    self.newPoints = [X[ii] for ii in range(self.N) if self.cluster[ii] == ij]
+                    self.mu[ij] = np.mean(self.newPoints, axis = 0)
             else:
                 self.cost_rec = self.cost_rec[:self.iter]
                 break
         return self
-                
-   
+
+
     def predict(self, X):
         '''
-        :param: X: NxD
-        :return type: labels
+        Parameter
+        -----------
+        X: NxD
+        
+        
+        Return type
+        ---------------
+        cluster labels
         '''
-        pred = np.zeros(X.shape[0])
+        pred = np.zeros(self.N)
         #compare new data to final centroid
-        for ii in range(X.shape[0]):
-            distance_matrix = kMeans.distance(X[ii], self.nu)
+        for ii in range(self.N):
+            distance_matrix = kMeans.distance(X[ii], self.mu)
             pred[ii] = np.argmin(distance_matrix)
         return pred
+
     
+
     def rand_index_score(self, clusters, classes):
         '''Compute the RandIndex
-        :param: Clusters: Cluster labels
-        :param: classses: Actual class
-        :returntype: float
+        
+        Parameter
+        ------------
+        Clusters: Cluster labels
+        classses: Actual class
+        
+        Return type
+        -----------
+        
+        float
         '''
         from scipy.special import comb
         tp_fp = comb(np.bincount(clusters), 2).sum()
         tp_fn = comb(np.bincount(classes), 2).sum()
         A = np.c_[(clusters, classes)]
-        tp = sum(comb(np.bincount(A[A[:, 0] == i, 1]), 2).sum()
+        tp = sum(comb(np.bincount(A[A[:, 0] == i, 1]), 2).sum()\
                  for i in set(clusters))
         fp = tp_fp - tp
         fn = tp_fn - tp
