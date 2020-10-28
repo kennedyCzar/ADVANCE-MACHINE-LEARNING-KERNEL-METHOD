@@ -89,7 +89,7 @@ class kMeans:
         X: NxD
         '''
         if not iteration:
-            iteration = 100
+            iteration = 10
             self.iteration = iteration
         else:
             self.iteration = iteration
