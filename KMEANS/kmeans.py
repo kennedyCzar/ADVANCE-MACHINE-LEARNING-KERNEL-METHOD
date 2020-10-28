@@ -34,9 +34,9 @@ class kMeans:
         
         cluster: cluster label
         
-        iteration: number of iteratio before convergence
+        iteration: number of iteration before convergence
         
-        cost_rec: euclidean distance between new and previous clusters
+        cost_rec: euclidean distance (l_2- norm) between new and previous clusters
         
         distance matrix: distance between a point and a cluster center
         
