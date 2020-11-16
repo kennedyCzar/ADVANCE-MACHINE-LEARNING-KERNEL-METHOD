@@ -9,6 +9,17 @@ Created on Thu Sep 19 16:19:27 2019
 import numpy as np
 
 class loss:
+    '''Loss function used in Machine Learning/Deep learning for minimization
+        or maximations problems.
+        
+     Parameters
+     ----------
+     None
+     
+     Attributes
+     ----------
+     None
+    '''
     def __init__(self):
         return
     
