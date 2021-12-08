@@ -1,5 +1,5 @@
 # ADVANCE-MACHINE-LEARNING-KERNEL-METHOD
-Advance machine Learning: Kernel methods implemented for PCA, KMeans, Logistic Regression and SVDD
+Advance machine Learning: Kernel methods implemented for PCA, KMeans, Logistic Regression (LR) and SVDD
 
 ##### CLASSICAL KMEANS | [code](https://github.com/kennedyCzar/ADVANCE-MACHINE-LEARNING-KERNEL-METHOD/blob/master/KMEANS/kmeans.py) | KERNEL KMEANS [CODE](https://github.com/kennedyCzar/ADVANCE-MACHINE-LEARNING-KERNEL-METHOD/blob/master/KMEANS/KERNEL%20KMEANS/kernelkmeans.py) | [Paper](https://github.com/kennedyCzar/ADVANCE-MACHINE-LEARNING-KERNEL-METHOD/blob/master/REPORT/KMeans.pdf)
 ##### KMeans is a simple yet efficient unsupervised clustering algorithm. KMeans clustering is a fast, robust, and simple algorithm that gives reliable results when data sets are distinct or well separated from each other in a linear fashion. It is best used when the number of cluster centers, is specified due to a well-defined list of types shown in the data.
